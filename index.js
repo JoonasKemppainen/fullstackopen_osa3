@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
   res.send("<h1>Welcome</h1>")
 })
 
-app.get("/info", (req, res) => {
+app.get("/info", (req, res, next) => {
     Person.countDocuments({}).then(count => {
         const date = new Date()
         res.send(
@@ -53,7 +53,7 @@ app.get("/api/people/:id", (req, res, next) => {
     }).catch(error => next(error))
 })
 
-app.post("/api/people", (req, res) => {
+app.post("/api/people", (req, res, next) => {
     const body = req.body
 
     const person = new Person({
@@ -74,7 +74,7 @@ app.delete("/api/people/:id", (req, res, next) => {
         .catch(error => next(error))
 })
 
-app.put('/api/people/:id', (req, res, next) => {
+app.put("/api/people/:id", (req, res, next) => {
   const body = req.body
 
   const person = {
@@ -94,6 +94,8 @@ const errorHandler = (error, req, res, next) => {
 
   if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === "ValidationError") {
+    return res.status(400).json({error: error.message})
   }
 
   next(error)
